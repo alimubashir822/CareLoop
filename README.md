@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CareLoop AI
 
-## Getting Started
+> **AI-powered patient follow-up automation that keeps care connected beyond the clinic visit.**
 
-First, run the development server:
+CareLoop AI is an **AI Patient Continuity & Care Engagement Platform** built to prevent clinics from losing patient engagement after the appointment ends. Unlike simple notification reminders, CareLoop AI analyzes care plans, tracks symptoms in natural language, evaluates recovery sentiments, monitors long-term chronic care metrics, and automatically escalates critical alerts to clinic staff.
 
+---
+
+## 🌟 Key Platform Features
+
+### 1. AI Care Journey Engine
+- **Visual Builder**: Design multi-stage outreach timelines starting from an EHR event checkout trigger.
+- **Node Steps**: Incorporate wait delays, outbound check-ins, AI sentiment condition nodes, and clinic task alerts.
+- **Dynamic Progression**: Journeys adapt automatically based on the patient's text updates.
+
+### 2. AI Sentiment Triage & Alarm Pipeline
+- **NLP Analysis**: Triages incoming patient text into `Positive`, `Neutral`, `Negative`, or `Alert` severity scales.
+- **Symptom Flags**: Detects danger signs like bleeding, excessive swelling, or fever, immediately raising patient risk scores and spawning high-priority coordinator tasks.
+
+### 3. Patient Continuity Profile
+- **Circular Compliance Gauge**: Displays circular progress indicators tracking patient survey response rates.
+- **Memory Logs**: Keeps notes of clinician preferences (e.g. *"anxious about stitches; prefers morning updates"*).
+- **Outreach Channels**: Dynamically adapts check-in details for SMS, Email, or Portal settings.
+
+### 4. Chronic Care Management
+- **Disease Management Programs**: Fully seeded programs for **Diabetes (Glucose tracking)** and **Hypertension (Blood Pressure logs)**.
+- **Vitals Analytics**: Real-time trend visualizers powered by Recharts (Area & Line charts with target ranges).
+- **Patient Enrollment Flow**: Enroll patients in specialized programs from their profile details.
+
+### 5. Multi-Tenant White-Label Branding
+- **Dynamic Theming**: Clinicians can swap the branding stylesheet instantly:
+  - **CareLoop Dental** (Teal / Emerald accent)
+  - **Summit Surgical** (Indigo / Purple accent)
+  - **HealthFlow Primary** (Sky / Blue accent)
+- Accents automatically apply to focus indicators, gauges, buttons, charts, and notifications.
+
+### 6. Smartphone Patient Simulator
+- **Interactive Portal**: Accessible simulator mock rendering a patient's iPhone screen.
+- **Voice Transcription**: Bouncing wave visualizer that records simulated voice inputs and transcribes them.
+- **Intelligent FAQs**: Context-aware answers to showering, workouts, and post-op diet questions.
+
+### 7. Enterprise HIPAA Compliance
+- **Secure Audit Trails**: Traceability records documenting logged logins, task archives, care plan creations, and manual inbox overrides.
+
+---
+
+## 💻 Tech Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`)
+- **Database**: SQLite (ORM powered by Prisma)
+- **Charts**: Recharts
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
+
+---
+
+## 🗄️ Database Architecture
+
+- **Patient**: Holds compliance scores, risk reasons, preferences, and clinical timeline connections.
+- **AuditLog**: Retains HIPAA compliance details linked to clinician actions.
+- **ChronicProgram**: Defines target vital ranges (systolic/diastolic, glucose) and frequencies.
+- **ChronicEnrollment**: Associates patients with disease programs and tracks individual compliance.
+- **VitalReading**: Logs chronological patient metrics (GLUCOSE, SYSTOLIC_BP, DIASTOLIC_BP) with AI condition flags.
+
+---
+
+## 🚀 Setup & Execution
+
+### Prerequisites
+- Node.js (v18.x or above recommended)
+- npm or yarn
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Database Migration & Seeding
+Prisma will compile models, migrate SQLite files, and seed default clinic data:
+```bash
+npx prisma migrate dev --name init
+npx prisma db seed
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your web browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Build Production Bundle
+To compile and test static pages optimized for server execution:
+```bash
+npm run build
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📱 Responsive Layout Guidelines
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+CareLoop AI implements a responsive breakpoint system ensuring compatibility across:
+- **Mobile devices (320px - 480px)**: Collapsed drawer navigation sidebar, stacked stats, horizontal scrolling tabs/timelines, and scaled smartphone mockup layouts.
+- **Tablets (481px - 1024px)**: Split-screen column grids (e.g. Inbox thread lists on left, chats on right) to maximize horizontal viewport workspace.
+- **Laptops & Desktops (1025px+)**: Sleek, spacious panels with fixed sidebars and full multi-column dashboard sections.

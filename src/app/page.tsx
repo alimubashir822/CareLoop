@@ -104,9 +104,18 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-6xl w-full mx-auto px-6 h-16 flex items-center justify-between text-xs text-slate-600 border-t border-slate-900 z-10 shrink-0">
+      <footer className="max-w-6xl w-full mx-auto px-6 h-16 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600 border-t border-slate-900 py-10 md:py-0 z-10 shrink-0">
         <span>© 2026 CareLoop AI Inc. All rights reserved.</span>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
+          <a
+            href="https://www.medclinicx.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-teal-400 text-slate-400 font-medium transition-colors"
+          >
+            Healthcare system by Med Clinic X
+          </a>
+          <span>•</span>
           <span className="hover:text-slate-400 transition-colors">HIPAA Compliant</span>
           <span>•</span>
           <span className="hover:text-slate-400 transition-colors">EHR Sandbox Ready</span>
