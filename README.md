@@ -123,9 +123,9 @@ My goal is to combine modern software engineering, cloud technologies, and healt
 
 ### 📫 Connect with Me
 
-- 💼 **LinkedIn**: [mubashirali822](https://linkedin.com/in/mubashirali822)
-- 📧 **Email**: [alimubashir822@gmail.com](mailto:alimubashir822@gmail.com)
-- 🌐 **Website**: [medclinicx.com](https://www.medclinicx.com/)
-- 🏥 **View More Healthcare Solutions**: [medclinicx.com/demo](https://www.medclinicx.com/demo)
+- 💼 **LinkedIn**: <a href="https://linkedin.com/in/mubashirali822" target="_blank" rel="noopener noreferrer">mubashirali822</a>
+- 📧 **Email**: <a href="mailto:alimubashir822@gmail.com" target="_blank" rel="noopener noreferrer">alimubashir822@gmail.com</a>
+- 🌐 **Website**: <a href="https://www.medclinicx.com/" target="_blank" rel="noopener noreferrer">medclinicx.com</a>
+- 🏥 **View More Healthcare Solutions**: <a href="https://www.medclinicx.com/demo" target="_blank" rel="noopener noreferrer">medclinicx.com/demo</a>
 
 ⭐ *Building the next generation of digital healthcare technology.*
