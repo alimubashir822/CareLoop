@@ -1,0 +1,296 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  clinics   Clinic[]
+}
+
+model Clinic {
+  id              String           @id @default(uuid())
+  name            String
+  organizationId  String
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  themePrimary    String           @default("#0d9488")
+  themeName       String           @default("CareLoop")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  users           User[]
+  doctors         Doctor[]
+  patients        Patient[]
+  appointments    Appointment[]
+  visits          Visit[]
+  carePlans       CarePlan[]
+  automationRules AutomationRule[]
+  tasks           Task[]
+  analytics       Analytics[]
+  chronicPrograms ChronicProgram[]
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String
+  role         String        // "Admin", "Doctor", "Nurse", "CareCoordinator", "Patient"
+  clinicId     String?
+  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  doctor       Doctor?
+  patient      Patient?
+  assignedTasks Task[]       @relation("AssignedTasks")
+  auditLogs    AuditLog[]
+  notifications Notification[]
+}
+
+model Doctor {
+  id           String        @id @default(uuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty    String
+  clinicId     String
+  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  visits       Visit[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Patient {
+  id                      String            @id @default(uuid())
+  userId                  String?           @unique
+  user                    User?             @relation(fields: [userId], references: [id])
+  name                    String
+  email                   String
+  phone                   String
+  birthDate               String
+  status                  String            // "Active", "Discharged", "HighRisk"
+  healthEngagementScore   Int               @default(92)
+  predictiveRiskScore     Float             @default(0.15)
+  riskReasons             String            @default("[]") // JSON string list of reasons
+  communicationPreference String            @default("SMS") // "SMS", "Email", "Portal"
+  detailPreference        String            @default("Concise") // "Concise", "Detailed"
+  memoryNotes             String            @default("") // Care notes
+  clinicId                String
+  clinic                  Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointments            Appointment[]
+  visits                  Visit[]
+  followUps               FollowUp[]
+  messages                Message[]
+  responses               PatientResponse[]
+  tasks                   Task[]
+  chronicEnrollments      ChronicEnrollment[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+}
+
+model Appointment {
+  id           String   @id @default(uuid())
+  patientId    String
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId     String
+  doctor       Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  clinicId     String
+  clinic       Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  scheduledAt  DateTime
+  status       String   // "Scheduled", "Completed", "Missed", "Rescheduled"
+  type         String   // "Routine", "Cleaning", "Surgery", "FollowUp"
+  notes        String?
+  visit        Visit?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Visit {
+  id            String       @id @default(uuid())
+  patientId     String
+  patient       Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId      String
+  doctor        Doctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  clinicId      String
+  clinic        Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointmentId String?      @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+  date          DateTime     @default(now())
+  diagnosis     String
+  treatment     String
+  notes         String
+  instructions  String       // AI-generated instructions
+  followUps     FollowUp[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model CarePlan {
+  id           String            @id @default(uuid())
+  name         String
+  description  String
+  clinicId     String
+  clinic       Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  triggerEvent String            // "VisitCompleted", "AppointmentMissed", "DiabetesChronic"
+  stepsJson    String            // JSON payload for steps: e.g. [{"day": 1, "action": "send_instructions"}, {"day": 3, "action": "send_checkin"}]
+  followUps    FollowUp[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model FollowUp {
+  id           String            @id @default(uuid())
+  patientId    String
+  patient      Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  visitId      String?
+  visit        Visit?            @relation(fields: [visitId], references: [id])
+  carePlanId   String?
+  carePlan     CarePlan?         @relation(fields: [carePlanId], references: [id])
+  title        String
+  status       String            // "Pending", "Completed", "Escalated", "Skipped"
+  scheduledDate DateTime
+  sentAt       DateTime?
+  messages     Message[]
+  responses    PatientResponse[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model Message {
+  id         String    @id @default(uuid())
+  patientId  String
+  patient    Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  followUpId String?
+  followUp   FollowUp? @relation(fields: [followUpId], references: [id])
+  sender     String    // "AI", "Clinic", "Patient"
+  content    String
+  sentAt     DateTime  @default(now())
+  status     String    // "Sent", "Read", "Failed"
+}
+
+model PatientResponse {
+  id           String    @id @default(uuid())
+  patientId    String
+  patient      Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  followUpId   String?
+  followUp     FollowUp? @relation(fields: [followUpId], references: [id])
+  responseText String
+  sentiment    String    // "Positive", "Neutral", "Negative", "Alert"
+  riskScore    Float     // 0.0 to 1.0
+  respondedAt  DateTime  @default(now())
+}
+
+model AutomationRule {
+  id          String   @id @default(uuid())
+  name        String
+  trigger     String   // "Visit Completed", "Missed Appointment", "Symptom Alert"
+  stepsJson   String   // JSON of visual workflow nodes and connections
+  isActive    Boolean  @default(true)
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Task {
+  id             String    @id @default(uuid())
+  patientId      String
+  patient        Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  clinicId       String
+  clinic         Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  title          String
+  description    String
+  priority       String    // "Low", "Medium", "High", "Urgent"
+  status         String    // "Pending", "InProgress", "Completed"
+  assignedToId   String?
+  assignedTo     User?     @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  assignedToName String    @default("Nurse Sarah")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Analytics {
+  id        String   @id @default(uuid())
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  metric    String   // "ResponseRate", "SymptomAlerts", "AppointmentsRecovered", "ActivePatients"
+  value     Float
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  entity    String
+  entityId  String
+  details   String
+  timestamp DateTime @default(now())
+}
+
+// ─── Chronic Care Management ────────────────────────────────────────────────
+
+model ChronicProgram {
+  id               String               @id @default(uuid())
+  name             String               // "Diabetes Management", "Hypertension Control"
+  type             String               // "DIABETES", "HYPERTENSION", "COPD", "CARDIAC"
+  description      String
+  clinicId         String
+  clinic           Clinic               @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  targetMetric     String               // "GLUCOSE", "BLOOD_PRESSURE", "HBA1C", "WEIGHT"
+  targetMin        Float                // e.g. 70 (mg/dL glucose min)
+  targetMax        Float                // e.g. 140 (mg/dL glucose max)
+  unit             String               // "mg/dL", "mmHg", "kg", "%"
+  checkInFrequency String               @default("WEEKLY")  // "DAILY", "WEEKLY", "MONTHLY"
+  enrollments      ChronicEnrollment[]
+  isActive         Boolean              @default(true)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model ChronicEnrollment {
+  id              String         @id @default(uuid())
+  patientId       String
+  patient         Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  programId       String
+  program         ChronicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  enrolledAt      DateTime       @default(now())
+  status          String         @default("ACTIVE") // "ACTIVE", "PAUSED", "GRADUATED", "DROPPED"
+  complianceScore Int            @default(85)       // 0-100
+  lastReading     DateTime?
+  nextCheckIn     DateTime?
+  notes           String         @default("")
+  vitalReadings   VitalReading[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model VitalReading {
+  id           String            @id @default(uuid())
+  enrollmentId String
+  enrollment   ChronicEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  recordedAt   DateTime          @default(now())
+  metricType   String            // "GLUCOSE", "SYSTOLIC_BP", "DIASTOLIC_BP", "HBA1C", "WEIGHT"
+  value        Float
+  unit         String            // "mg/dL", "mmHg", "%", "kg"
+  status       String            @default("NORMAL") // "NORMAL", "LOW", "HIGH", "CRITICAL"
+  aiFlag       String?           // AI-generated observation e.g. "Glucose spike after meal reported"
+  source       String            @default("PATIENT_REPORTED") // "PATIENT_REPORTED", "DEVICE", "CLINIC"
+  createdAt    DateTime          @default(now())
+}
